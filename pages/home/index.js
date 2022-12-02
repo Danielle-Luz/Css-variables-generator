@@ -1,4 +1,4 @@
-function setInputColors () {
+function setInputColors() {
   const inputsColor = [...document.querySelectorAll("input[type=color]")];
 
   const colors = getLocalStorageColors();
@@ -8,7 +8,7 @@ function setInputColors () {
   });
 }
 
-function getLocalStorageColors () {
+function getLocalStorageColors() {
   while (true) {
     const colors = JSON.parse(localStorage.getItem("colors"));
 
@@ -37,31 +37,34 @@ function getLocalStorageColors () {
   }
 }
 
-function setFontScale () {
+function setFontScale() {
   const fontScaleInput = document.getElementById("fontScale");
+  
+  const storedValues = JSON.parse(localStorage.getItem("fontScale"));
 
-  const fontScaleArray = 
-  JSON.parse(localStorage.getItem("fontScale"))
-  .filter(size => size != null)
-  .map( size => size * 16);
-
-  const fontScaleString = fontScaleArray.join(", ");
-
-  fontScaleInput.value = fontScaleString;
+  if (storedValues) {
+    const fontScaleArray = storedValues.filter((size) => size != null).map((size) => size * 16);
+  
+    const fontScaleString = fontScaleArray.join(", ");
+  
+    console.log(fontScaleArray);
+  
+    fontScaleInput.value = fontScaleString;
+  }
 }
 
-function addEventToButtons () {
+function addEventToButtons() {
   const saveButton = document.querySelector(".button-save-colors");
   const copyButton = document.querySelector(".button-copy-colors");
 
-  saveButton.addEventListener("click", event => {
+  saveButton.addEventListener("click", (event) => {
     event.preventDefault();
 
     storeInputsColors();
     storeFontScale();
     changeButtonText(saveButton, "Saved");
   });
-  copyButton.addEventListener("click", event => {
+  copyButton.addEventListener("click", (event) => {
     event.preventDefault();
 
     copySettings();
@@ -69,39 +72,39 @@ function addEventToButtons () {
   });
 }
 
-function storeInputsColors () {
+function storeInputsColors() {
   const colors = getInputColors();
 
   localStorage.setItem("colors", JSON.stringify(colors));
 }
 
-function getInputColors () {
+function getInputColors() {
   const inputsColor = [...document.querySelectorAll("input[type=color]")];
 
-  const colors = inputsColor.map(({value}) => value);
+  const colors = inputsColor.map(({ value }) => value);
 
   return colors;
 }
 
-function storeFontScale () {
+function storeFontScale() {
   const scaleSizes = getFontScale();
 
   localStorage.setItem("fontScale", JSON.stringify(scaleSizes));
 }
 
-function getFontScale () {
+function getFontScale() {
   const fontScaleInput = document.getElementById("fontScale").value;
 
-  const scaleSizes = 
-  fontScaleInput
-  .split(/[,\s*]/g)
-  .filter( size => size != "")
-  .map( size => size / 16);
+  let scaleSizes = "";
 
+  if (fontScaleInput) {
+    scaleSizes = fontScaleInput.split(/[,\s*]/g).filter((size) => size != "").map((size) => size / 16);
+  }
+  
   return scaleSizes;
 }
 
-function copySettings () {
+function copySettings() {
   const inputsColor = [...document.querySelectorAll("input[type=color]")];
 
   const colors = getInputColors();
@@ -111,33 +114,27 @@ function copySettings () {
   let fontVariables = "";
   let rootVariables = "";
 
-  inputsColor.forEach(
-    (input, index) => {
-      colorVariables += `--color-${input.id}: ${colors[index]};\n`;
-    }
-  );
+  inputsColor.forEach((input, index) => {
+    colorVariables += `--color-${input.id}: ${colors[index]};\n`;
+  });
 
-  fontScale.forEach(
-    (size, index) => {
-      fontVariables += `--font-size-${index + 1}: ${size}rem;\n`;
-    }
-  );
+  fontScale.forEach((size, index) => {
+    fontVariables += `--font-size-${index + 1}: ${size}rem;\n`;
+  });
 
   rootVariables = `${colorVariables}\n${fontVariables}`;
-  
+
   navigator.clipboard.writeText(rootVariables);
 }
 
-function changeButtonText (button, text) {
+function changeButtonText(button, text) {
   const buttonTextBefore = button.innerText;
 
   button.innerText = text;
 
-  setTimeout(
-    () => {
-      button.innerText = buttonTextBefore;
-    }, 3000
-  );
+  setTimeout(() => {
+    button.innerText = buttonTextBefore;
+  }, 3000);
 }
 
 setInputColors();
